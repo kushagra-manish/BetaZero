@@ -1,4 +1,4 @@
-#include<bits/stdc++.h>
+#include "bits/stdc++.h"
 #include "defs.h"
 // this macro generates a 64 bit random integer rand() generates 15 bit integer
 #define RAND_64 (	(U64)rand() | \
@@ -17,6 +17,33 @@ U64 ClearMask[64]; // array clearing a bit
 U64 PieceKeys[13][120]; // array for generating keys for pieces
 U64 SideKey; // array for generating key for which side is going on
 U64 CastleKeys[16]; // array for generating key for castlings 
+
+int FilesBrd[BRD_SQ_NUM]; // tells the file of the square
+int RanksBrd[BRD_SQ_NUM]; // tells the rank of the square
+
+
+void InitFilesRanksBrd() {
+	
+	int index = 0;
+	int file = FILE_A;
+	int rank = RANK_1;
+	int sq = A1;
+	int sq64 = 0;
+	// setting everything to offboard first	
+	for(index = 0; index < BRD_SQ_NUM; ++index) {
+		FilesBrd[index] = OFFBOARD;
+		RanksBrd[index] = OFFBOARD;
+	}
+	// simple enough function to get rank and file of a square
+	for(rank = RANK_1; rank <= RANK_8; ++rank) {
+		for(file = FILE_A; file <= FILE_H; ++file) {
+			sq = FR2SQ(file,rank);
+			FilesBrd[sq] = file;
+			RanksBrd[sq] = rank;
+		}
+	}
+}
+
 
 void InitHashKeys() {
 	// initializing hashes with random numbers
@@ -71,10 +98,14 @@ void InitSq120to64(){
 			sq64++;
 		}
 	}
+
+
 }
 
 void AllInit(){
     InitSq120to64();
     InitBitMasks();
     InitHashKeys();
+	InitFilesRanksBrd();
+	InitMvvLva();
 }

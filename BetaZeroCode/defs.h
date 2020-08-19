@@ -3,7 +3,7 @@
 
 #include "stdlib.h"
 
-#define DEBUG
+// #define DEBUG
 #ifndef DEBUG
 	#define ASSERT(n)
 #else
@@ -23,6 +23,8 @@ typedef unsigned long long U64;
 #define NAME "BetaZero 1.0"
 #define BRD_SQ_NUM 120 //120 size array
 #define MAXGAMEMOVES 2048 // MAximum moves in  a game , worst case, normally games are way less
+#define MAXPOSITIONMOVES 256
+#define MAXDEPTH 64
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" //starting FEN string
 
 // enumeration for easy access of pieces, wP= white pawn, wN = white knight and so on.
@@ -55,9 +57,30 @@ enum { FALSE , TRUE };
 // variables for White Kingside Castle , White Queenside castle and same for black (four bits) 
 enum { WKCA = 1 , WQCA = 2, BKCA=4 , BQCA=8};
 
+typedef struct{
+    int move;
+    int score; // for move ordering
+}S_MOVE;
+
+typedef struct {
+	S_MOVE moves[MAXPOSITIONMOVES];
+	int count;
+} S_MOVELIST;
+
+typedef struct{
+    U64 posKey;
+    int move;
+} S_PVENTRY;
+
+typedef struct{
+    S_PVENTRY *pTable;
+    int numEntries;
+} S_PVTABLE;
+
+
 // struct that contains the info to undo a move
 typedef struct {
-    U64 poskey; // the position key
+    U64 posKey; // the position key
     int move; // move that was just played
     int castlePerm; // castling permission
     int enPas; // enpassant square, if it was set
@@ -95,8 +118,60 @@ typedef struct
     S_UNDO history[MAXGAMEMOVES]; //stores the history
     
     int pList[13][10]; // piece list for 13 possible pieces plus worst case 10 for each piece. like if all 8 pawns promote , you could have 10 rooks/knights/bishops
+    S_PVTABLE PvTable[1];
+    int PvArray[MAXDEPTH];
 
+    int searchHistory[13][BRD_SQ_NUM];
+    int searchKillers[2][MAXDEPTH];
 }S_BOARD;
+
+typedef struct{
+    int starttime;
+    int stoptime;
+    int depth;
+    int depthset;
+    int timeset;
+    int movestogo;
+    int infinite;
+
+    long nodes;
+    
+    int quit;
+    int stopped;
+
+    
+	float fh;
+	float fhf;
+
+} S_SEARCHINFO;
+
+/* GAME MOVE */
+
+
+    /*   
+    0000 0000 0000 0000 0000 0111 1111 -> From 0x7F
+    0000 0000 0000 0011 1111 1000 0000 -> To >> 7, 0x7F
+    0000 0000 0011 1100 0000 0000 0000 -> Captured >> 14, 0xF
+    0000 0000 0100 0000 0000 0000 0000 -> EP 0x40000
+    0000 0000 1000 0000 0000 0000 0000 -> Pawn Start 0x80000
+    0000 1111 0000 0000 0000 0000 0000 -> Promoted Piece >> 20, 0xF
+    0001 0000 0000 0000 0000 0000 0000 -> Castle 0x1000000
+    */
+
+
+    #define FROMSQ(m) ((m) & 0x7F)
+    #define TOSQ(m) (((m)>>7) & 0x7F)
+    #define CAPTURED(m) (((m)>>14) & 0xF)
+    #define PROMOTED(m) (((m)>>20) & 0xF)
+
+    #define MFLAGEP 0x40000
+    #define MFLAGPS 0x80000
+    #define MFLAGCA 0x1000000
+
+    #define MFLAGCAP 0x7C000
+    #define MFLAGPROM 0xF00000
+
+    #define NOMOVE 0
 
 /* MACROS */
 
@@ -115,6 +190,12 @@ typedef struct
     #define CLRBIT(bb,sq) ((bb) &= ClearMask[(sq)])
     // sets the bit on sqaure sq
     #define SETBIT(bb,sq) ((bb) |= SetMask[(sq)])
+
+    //Function for easy access  
+    #define IsBQ(p) (PieceBishopQueen[(p)])
+    #define IsRQ(p) (PieceRookQueen[(p)])
+    #define IsKn(p) (PieceKnight[(p)])
+    #define IsKi(p) (PieceKing[(p)])
 
 
 
@@ -140,6 +221,17 @@ typedef struct
     extern int PieceVal[13];
     extern int PieceCol[13];
 
+    // convert square number to file,rank
+    extern int FilesBrd[BRD_SQ_NUM];
+    extern int RanksBrd[BRD_SQ_NUM];
+
+    //is the piece a Knight,king,rook/queen,bishop/queen    
+    extern int PieceKnight[13];
+    extern int PieceKing[13];
+    extern int PieceRookQueen[13];
+    extern int PieceBishopQueen[13];
+    extern int PieceSlides[13];
+    extern int PiecePawn[13];
 
 /* FUNCTIONS */
 
@@ -158,7 +250,56 @@ typedef struct
     extern void ResetBoard(S_BOARD *pos); // resets board to being completely empty
     extern int ParseFen(char *fen, S_BOARD *pos); // parses a char * / string and puts the position on board pos
     extern void PrintBoard(const S_BOARD *pos); // prints the current position
-    extern void UpdateListsMaterial(S_BOARD *pos);
+    extern void UpdateListsMaterial(S_BOARD *pos);// updates material after move or change in position
+    extern int CheckBoard(const S_BOARD *pos);// checks if everything on board is according to position
+
+    // attack.cpp
+    extern int SqAttacked(const int sq, const int side, const S_BOARD *pos); // tells if a square is attacked
+
+    // io.cpp
+    extern char *PrMove(const int move);
+    extern char *PrSq(const int sq);
+    extern void PrintMoveList(const S_MOVELIST *list);
+    extern int ParseMove(char *ptrChar, S_BOARD *pos);
+
+
+    //validate.cpp
+    extern int SqOnBoard(const int sq);
+    extern int SideValid(const int side);
+    extern int FileRankValid(const int fr);
+    extern int PieceValidEmpty(const int pce);
+    extern int PieceValid(const int pce);
+
+    
+    // movegen.cpp
+    extern void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list);
+    extern void GenerateAllCaps(const S_BOARD *pos, S_MOVELIST *list);
+    extern int MoveExists(S_BOARD *pos, const int move);
+    extern int InitMvvLva();
+    
+    // makemove.cpp
+    extern int MakeMove(S_BOARD *pos, int move);
+    extern void TakeMove(S_BOARD *pos);
+
+    
+    // perft.cpp
+    extern void PerftTest(int depth, S_BOARD *pos);
+
+    // search.cpp
+    extern void SearchPosition(S_BOARD *pos,  S_SEARCHINFO *info);
+
+    // misc.cpp 
+    extern int GetTimeMs();
+    
+    // pvtable.cpp
+    extern void InitPvTable(S_PVTABLE *table);
+    extern void StorePvMove(const S_BOARD *pos, const int move);
+    extern int ProbePvTable(const S_BOARD *pos);
+    extern int GetPvLine(const int depth, S_BOARD *pos);
+    extern void ClearPvTable(S_PVTABLE *table);
+
+    //evaluate.cpp
+    extern int EvalPosition(const S_BOARD *pos);
 
 
 #endif
