@@ -1,5 +1,5 @@
 // hashkeys.cpp
-#include<bits/stdc++.h>
+#include "bits/stdc++.h"
 #include "defs.h"
 
 U64 GeneratePosKey(const S_BOARD *pos) {
