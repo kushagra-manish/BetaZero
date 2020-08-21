@@ -290,6 +290,7 @@ typedef struct{
 
     // misc.cpp 
     extern int GetTimeMs();
+    extern void ReadInput(S_SEARCHINFO *info);
     
     // pvtable.cpp
     extern void InitPvTable(S_PVTABLE *table);
@@ -300,6 +301,9 @@ typedef struct{
 
     //evaluate.cpp
     extern int EvalPosition(const S_BOARD *pos);
+    
+    // uci.cpp 
+    extern void Uci_Loop();
 
 
 #endif
