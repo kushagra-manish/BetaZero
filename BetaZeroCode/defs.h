@@ -236,18 +236,18 @@ extern U64 IsolatedMask[64];
 
 /* FUNCTIONS */
 
-// init.c
+// init.cpp
 extern void AllInit();
 
-// bitboards.c
+// bitboards.cpp
 extern void PrintBitBoard(U64 bb);
 extern int PopBit(U64 *bb);
 extern int CountBits(U64 b);
 
-// hashkeys.c
+// hashkeys.cpp
 extern U64 GeneratePosKey(const S_BOARD *pos);
 
-// board.c
+// board.cpp
 extern void ResetBoard(S_BOARD *pos);
 extern int ParseFen(char *fen, S_BOARD *pos);
 extern void PrintBoard(const S_BOARD *pos);
@@ -255,17 +255,17 @@ extern void UpdateListsMaterial(S_BOARD *pos);
 extern int CheckBoard(const S_BOARD *pos);
 extern void MirrorBoard(S_BOARD *pos);
 
-// attack.c
+// attack.cpp
 extern int SqAttacked(const int sq, const int side, const S_BOARD *pos);
 
-// io.c
+// io.cpp
 extern char *PrMove(const int move);
 extern char *PrSq(const int sq);
 extern void PrintMoveList(const S_MOVELIST *list);
 extern int ParseMove(char *ptrChar, S_BOARD *pos);
 
 
-//validate.c
+//validate.cpp
 extern int SqOnBoard(const int sq);
 extern int SideValid(const int side);
 extern int FileRankValid(const int fr);
@@ -277,29 +277,29 @@ extern int PceValidEmptyOffbrd(const int pce);
 extern int MoveListOk(const S_MOVELIST *list,  const S_BOARD *pos);
 extern void DebugAnalysisTest(S_BOARD *pos, S_SEARCHINFO *info);
 
-// movegen.c
+// movegen.cpp
 extern void GenerateAllMoves(const S_BOARD *pos, S_MOVELIST *list);
 extern void GenerateAllCaps(const S_BOARD *pos, S_MOVELIST *list);
 extern int MoveExists(S_BOARD *pos, const int move);
 extern void InitMvvLva();
 
-// makemove.c
+// makemove.cpp
 extern int MakeMove(S_BOARD *pos, int move);
 extern void TakeMove(S_BOARD *pos);
 extern void MakeNullMove(S_BOARD *pos);
 extern void TakeNullMove(S_BOARD *pos);
 
-// perft.c
+// perft.cpp
 extern void PerftTest(int depth, S_BOARD *pos);
 
-// search.c
+// search.cpp
 extern void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info);
 
-// misc.c
+// misc.cpp
 extern int GetTimeMs();
 extern void ReadInput(S_SEARCHINFO *info);
 
-// pvtable.c
+// pvtable.cpp
 extern void InitHashTable(S_HASHTABLE *table, const int MB);
 extern void StoreHashEntry(S_BOARD *pos, const int move, int score, const int flags, const int depth);
 extern int ProbeHashEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int depth);
@@ -307,14 +307,14 @@ extern int ProbePvMove(const S_BOARD *pos);
 extern int GetPvLine(const int depth, S_BOARD *pos);
 extern void ClearHashTable(S_HASHTABLE *table);
 
-// evaluate.c
+// evaluate.cpp
 extern int EvalPosition(const S_BOARD *pos);
 extern void MirrorEvalTest(S_BOARD *pos) ;
 
-// uci.c
+// uci.cpp
 extern void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info);
 
-// xboard.c
+// xboard.cpp
 extern void XBoard_Loop(S_BOARD *pos, S_SEARCHINFO *info);
 extern void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info);
 
