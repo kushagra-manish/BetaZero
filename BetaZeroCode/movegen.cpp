@@ -3,6 +3,7 @@
 #include "bits/stdc++.h"
 #include "defs.h"
 
+
 #define MOVE(f,t,ca,pro,fl) ( (f) | ((t) << 7) | ( (ca) << 14 ) | ( (pro) << 20 ) | (fl))
 #define SQOFFBOARD(sq) (FilesBrd[(sq)]==OFFBOARD)
 
@@ -47,7 +48,7 @@ HistoryScore
 const int VictimScore[13] = { 0, 100, 200, 300, 400, 500, 600, 100, 200, 300, 400, 500, 600 };
 static int MvvLvaScores[13][13];
 
-int InitMvvLva() {
+void InitMvvLva() {
 	int Attacker;
 	int Victim;
 	for(Attacker = wP; Attacker <= bK; ++Attacker) {
@@ -473,7 +474,6 @@ void GenerateAllCaps(const S_BOARD *pos, S_MOVELIST *list) {
 		pce = LoopNonSlidePce[pceIndex++];
 	}
 }
-
 
 
 
