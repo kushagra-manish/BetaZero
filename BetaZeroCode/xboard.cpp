@@ -179,7 +179,7 @@ void XBoard_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 		    printf("DEBUG time:%d\n",time);
 			continue;
 		}
-		
+
 		if(!strcmp(command, "memory")) {			
 			sscanf(inBuf, "memory %d", &MB);		
 		    if(MB < 4) MB = 4;

@@ -106,6 +106,7 @@ int EvalPosition(const S_BOARD *pos) {
 	int pceNum;
 	int sq;
 	int score = pos->material[WHITE] - pos->material[BLACK];
+	//int wsuccesive,bsuccesive=0;
 	
 	if(!pos->pceNum[wP] && !pos->pceNum[bP] && MaterialDraw(pos) == TRUE) {
 		return 0;
@@ -122,12 +123,10 @@ int EvalPosition(const S_BOARD *pos) {
 			//printf("wP Iso:%s\n",PrSq(sq));
 			score += PawnIsolated;
 		}
-		
 		if( (WhitePassedMask[SQ64(sq)] & pos->pawns[BLACK]) == 0) {
 			//printf("wP Passed:%s\n",PrSq(sq));
 			score += PawnPassed[RanksBrd[sq]];
 		}
-		
 	}	
 
 	pce = bP;	
@@ -233,20 +232,14 @@ int EvalPosition(const S_BOARD *pos) {
 	pce = bK;
 	sq = pos->pList[pce][0];
 	
-	if( (pos->material[WHITE] <= ENDGAME_MAT) ) {
-		score -= KingE[MIRROR64(SQ64(sq))];
-	} else {
-		score -= KingO[MIRROR64(SQ64(sq))];
-	}
+	if((pos->material[WHITE] <= ENDGAME_MAT)) score -= KingE[MIRROR64(SQ64(sq))];
+	else score -= KingO[MIRROR64(SQ64(sq))];
 	
 	if(pos->pceNum[wB] >= 2) score += BishopPair;
 	if(pos->pceNum[bB] >= 2) score -= BishopPair;
 	
-	if(pos->side == WHITE) {
-		return score;
-	} else {
-		return -score;
-	}	
+	if(pos->side == WHITE) return score;
+	else return -score;
 }
 
 

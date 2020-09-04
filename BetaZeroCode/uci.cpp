@@ -115,6 +115,7 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
     printf("id name %s\n",NAME);
     printf("id author starkizard\n");
 	printf("option name Hash type spin default 64 min 4 max 2048\n");
+	printf("option name Book type check default true\n");
     printf("uciok\n");
 	
 	int MB = 64;
@@ -154,6 +155,14 @@ void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info) {
 			if(MB > 2048) MB = 2048;
 			printf("Set Hash to %d MB\n",MB);
 			InitHashTable(pos->HashTable, MB);
+		} else if (!strncmp(line, "setoption name Book value ", 26)) {			
+			char *ptrTrue = NULL;
+			ptrTrue = strstr(line, "true");
+			if(ptrTrue != NULL) {
+				EngineOptions->UseBook = TRUE;
+			} else {
+				EngineOptions->UseBook = FALSE;
+			}
 		}
 		if(info->quit) break;
     }
