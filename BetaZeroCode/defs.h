@@ -1,10 +1,15 @@
+// Definition File
+// Has all the definitions needed throughout the code
+// Everything has #include "defs.h"
 #ifndef DEFS_H
 #define DEFS_H
 
 #include "bits/stdc++.h"
 
-// #define DEBUG
+// debugger 
+// turn it on when testing, turn off when running
 
+// #define DEBUG
 #ifndef DEBUG
 #define ASSERT(n)
 #else
@@ -18,26 +23,32 @@ printf("At Line %d\n",__LINE__); \
 exit(1);}
 #endif
 
+// 64 bit integer
 typedef unsigned long long U64;
 
 #define NAME "BetaZero 1.0"
-#define BRD_SQ_NUM 120
+#define BRD_SQ_NUM 120 // for padding 
 
-#define MAXGAMEMOVES 2048
-#define MAXPOSITIONMOVES 256
-#define MAXDEPTH 64
+#define MAXGAMEMOVES 2048 // total game moves
+#define MAXPOSITIONMOVES 256 // one position moves
+#define MAXDEPTH 64 // for each search max moves for better time management
 
+// small letters for black
+// capital letters for white
 #define START_FEN  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-
 #define INFINITE 30000
 #define ISMATE (INFINITE - MAXDEPTH)
 
+//      0 , 1, 2 , 3  , 4 , 5 , 6 , 7 , 8 , 9 , 10 , 11 , 12 
 enum { EMPTY, wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK  };
 enum { FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE };
 enum { RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NONE };
 
+//     0    , 1  
 enum { WHITE, BLACK, BOTH };
+
 enum { UCIMODE, XBOARDMODE, CONSOLEMODE };
+
 enum {
   A1 = 21, B1, C1, D1, E1, F1, G1, H1,
   A2 = 31, B2, C2, D2, E2, F2, G2, H2,
@@ -51,10 +62,11 @@ enum {
 
 enum { FALSE, TRUE };
 
+// castling permissions
 enum { WKCA = 1, WQCA = 2, BKCA = 4, BQCA = 8 };
 
 typedef struct {
-	int move;
+	int move; 
 	int score;
 } S_MOVE;
 
@@ -101,14 +113,14 @@ typedef struct {
 
 	int side;
 	int enPas;
-	int fiftyMove;
+	int fiftyMove; // no pawn moves and no captures
 
-	int ply;
-	int hisPly;
+	int ply; // half moves in current search 
+	int hisPly; // half moves in game till now
 
-	int castlePerm;
+	int castlePerm; // castling permission
 
-	U64 posKey;
+	U64 posKey; // position key 
 
 	int pceNum[13];
 	int bigPce[2];
@@ -150,6 +162,10 @@ typedef struct {
 	int POST_THINKING;
 
 } S_SEARCHINFO;
+
+typedef struct {
+	int UseBook;
+} S_OPTIONS;
 
 /* GAME MOVE */
 
@@ -234,6 +250,8 @@ extern U64 BlackPassedMask[64];
 extern U64 WhitePassedMask[64];
 extern U64 IsolatedMask[64];
 
+extern S_OPTIONS EngineOptions[1];
+
 /* FUNCTIONS */
 
 // init.cpp
@@ -317,5 +335,10 @@ extern void Uci_Loop(S_BOARD *pos, S_SEARCHINFO *info);
 // xboard.cpp
 extern void XBoard_Loop(S_BOARD *pos, S_SEARCHINFO *info);
 extern void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info);
+
+// polybook.c
+extern int GetBookMove(S_BOARD *board);
+extern void CleanPolyBook();
+extern void InitPolyBook() ;
 
 #endif
