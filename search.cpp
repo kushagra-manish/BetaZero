@@ -276,7 +276,6 @@ void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info) {
 
 			//printf("Hits:%d Overwrite:%d NewWrite:%d Cut:%d\nOrdering %.2f NullCut:%d\n",pos->HashTable->hit,pos->HashTable->overWrite,pos->HashTable->newWrite,pos->HashTable->cut,
 			//(info->fhf/info->fh)*100,info->nullCut);
-			if(bestScore>=ISMATE) break;
 		}
 	}
 
