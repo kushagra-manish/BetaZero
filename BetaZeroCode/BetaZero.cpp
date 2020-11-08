@@ -30,28 +30,25 @@ int main(int argc, char *argv[]) {
 	char line[256];
 	while (TRUE) {
 		memset(&line[0], 0, sizeof(line));
-
 		fflush(stdout);
-		if (!fgets(line, 256, stdin))
-			continue;
-		if (line[0] == '\n')
-			continue;
+		if (!fgets(line, 256, stdin)) continue;
+		if (line[0] == '\n') continue;
 		if (!strncmp(line, "uci",3)) {
 			Uci_Loop(pos, info);
 			if(info->quit == TRUE) break;
 			continue;
-		}// else if (!strncmp(line, "xboard",6))	{
-		// 	XBoard_Loop(pos, info);
-		// 	if(info->quit == TRUE) break;
-		// 	continue;
-		// }
+		}
+		else if (!strncmp(line, "xboard",6))	{
+			XBoard_Loop(pos, info);
+			if(info->quit == TRUE) break;
+			continue;
+		}
 		else if (!strncmp(line, "betazero",8))	{
 			Console_Loop(pos, info);
 			if(info->quit == TRUE) break;
 			continue;
-		} else if(!strncmp(line, "quit",4))	{
-			break;
-		}
+		} 
+		else if(!strncmp(line, "quit",4)) break;
 	}
 
 	free(pos->HashTable->pTable);
